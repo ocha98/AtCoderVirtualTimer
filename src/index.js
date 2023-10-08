@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AtCoderVirtualTimer
 // @namespace    ocha98-virtual-timer
-// @version      0.1
+// @version      0.2
 // @description  バーチャルの開始までの時間、残り時間をコンテストと同じように表示します
 // @author       Ocha98
 // @match        https://atcoder.jp/contests/*
@@ -16,7 +16,18 @@ class Timer {
         this.endDate = new Date(this.startDate.getTime() + durationMinutes * 60 * 1000);  // durationMinutesをミリ秒に変換してendDateを計算
         this.targetElement = document.getElementById(targetElementId);
         this.virtualTimer = this.createVirtualTimer();
+        this.timeDelta = Cookies.getJSON("timeDelta");
         document.body.appendChild(this.virtualTimer);
+
+        if(typeof this.timeDelta === 'undefined'){
+            this.timeDelta = 0;
+        }
+    }
+
+    now() {
+        const date = new Date();
+        date.setTime(date.getTime() + this.timeDelta);
+        return date;
     }
 
     createVirtualTimer() {
@@ -49,7 +60,7 @@ class Timer {
         this.virtualTimer.style.display = 'block';
 
         const updateDisplay = () => {
-            const nowDate = new Date();
+            const nowDate = this.now();
             if (this.startDate > nowDate) {
                 // バーチャル開始前
                 const formattedTimeDiff = this.formatTimeDifference(this.startDate, nowDate);
